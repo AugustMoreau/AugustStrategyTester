@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>August Strategy Tester</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --primary-dark: #2980b9;
+      --secondary-color: #2ecc71;
+      --secondary-dark: #27ae60;
+      --warning-color: #e74c3c;
+      --text-color: #333;
+      --light-text: #777;
+      --background-color: #f9f9f9;
+      --card-background: #fff;
+      --border-color: #e0e0e0;
+      --profit-color: #2ecc71;
+      --loss-color: #e74c3c;
+      --border-radius: 8px;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .app-header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .app-header h1 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .app-content {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 2rem;
+      padding: 2rem;
+      flex: 1;
+    }
+
+    @media (max-width: 1200px) {
+      .app-content {
+        flex-direction: column;
+      }
+    }
+
+    .config-section {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .results-section {
+      flex: 2;
+      min-width: 500px;
+    }
+
+    .app-footer {
+      background-color: var(--primary-dark);
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    /* Config Panel Styles */
+    .config-panel {
+      background-color: var(--card-background);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .config-panel h2 {
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .date-range {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .date-range .form-group {
+      flex: 1;
+    }
+
+    .strategy-mode {
+      margin: 1.5rem 0;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .mode-selector label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .strategy-description {
+      margin: 1rem 0;
+      padding: 0.8rem;
+      background-color: rgba(52, 152, 219, 0.1);
+      border-radius: 4px;
+      font-style: italic;
+      color: var(--light-text);
+    }
+
+    .strategy-params {
+      margin-top: 1.5rem;
+    }
+
+    .strategy-params h4 {
+      margin-bottom: 1rem;
+      color: var(--primary-dark);
+    }
+
+    .param-input {
+      margin-bottom: 1rem;
+    }
+
+    .param-input label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .param-input input[type="range"] {
+      width: 100%;
+    }
+
+    .param-input.checkbox {
+      display: flex;
+      align-items: center;
+    }
+
+    .param-input.checkbox input {
+      width: auto;
+      margin-right: 0.5rem;
+    }
+
+    .combined-strategies .add-strategy {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .combined-strategies .add-strategy select {
+      flex: 1;
+    }
+
+    .combined-strategies .add-strategy button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .combined-strategies .add-strategy button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .strategy-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .strategy-item {
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 1rem;
+    }
+
+    .strategy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .remove-strategy {
+      background-color: var(--warning-color);
+      color: white;
+      border: none;
+      padding: 0.3rem 0.7rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .weight-slider {
+      margin-bottom: 1rem;
+    }
+
+    .run-backtest {
+      margin-top: 2rem;
+    }
+
+    .run-backtest button {
+      width: 100%;
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .run-backtest button:hover:not(:disabled) {
+      background-color: var(--secondary-dark);
+    }
+
+    .run-backtest button:disabled {
+      background-color: var(--light-text);
+      cursor: not-allowed;
+    }
+
+    /* Results Display Styles */
+    .results-display {
+      background-color: var(--card-background);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .results-display h2 {
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .results-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .result-card {
+      background-color: rgba(52, 152, 219, 0.1);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .result-card.primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .result-card h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .trade-history {
+      overflow-x: auto;
+    }
+
+    .trade-history table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .trade-history th {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 0.8rem;
+      text-align: left;
+    }
+
+    .trade-history td {
+      padding: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .trade-history tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .trade-history tr.profitable td {
+      background-color: rgba(46, 204, 113, 0.1);
+    }
+
+    .trade-history tr.loss td {
+      background-color: rgba(231, 76, 60, 0.1);
+    }
+
+    .profit {
+      color: var(--profit-color);
+      font-weight: 600;
+    }
+
+    .loss {
+      color: var(--loss-color);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>August Strategy Tester</h1>
+      <p>Backtest cryptocurrency trading strategies with historical data</p>
+    </header>
+    
+    <main class="app-content">
+      <div class="config-section">
+        <div class="config-panel">
+          <h2>Configuration</h2>
+          
+          <div class="form-group">
+            <label for="coin">Select Coin</label>
+            <select id="coin">
+              <option value="BTCUSDT">Bitcoin (BTC)</option>
+              <option value="ETHUSDT">Ethereum (ETH)</option>
+              <option value="SOLUSDT">Solana (SOL)</option>
+              <option value="XRPUSDT">Ripple (XRP)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="timeframe">Select Timeframe</label>
+            <select id="timeframe">
+              <option value="1m">1 Minute</option>
+              <option value="5m">5 Minutes</option>
+              <option value="15m">15 Minutes</option>
+              <option value="1h">1 Hour</option>
+              <option value="4h" selected>4 Hours</option>
+              <option value="1d">1 Day</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="balance">Initial Balance (USDT)</label>
+            <input type="number" id="balance" value="1000" min="100" step="100">
+          </div>
+          
+          <div class="date-range">
+            <div class="form-group">
+              <label for="from-date">From Date</label>
+              <input type="date" id="from-date" value="2024-05-01" min="2024-05-01" max="2025-06-01">
+              <div class="tooltip">
+               
+                <span class="tooltip-text">Date range is limited based on Binance API constraints for the selected timeframe.</span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="to-date">To Date</label>
+              <input type="date" id="to-date" value="2025-06-01" min="2024-05-01" max="2025-06-01">
+            </div>
+          </div>
+          
+          <div class="strategy-mode">
+            <h3>Strategy Mode</h3>
+            <div class="mode-selector">
+              <label>
+                <input type="radio" name="strategy-mode" value="single" checked> Single Strategy
+              </label>
+              <label>
+                <input type="radio" name="strategy-mode" value="combined"> Combined Strategies
+              </label>
+            </div>
+          </div>
+          
+          <div class="single-strategy">
+            <div class="form-group">
+              <label for="strategy">Select Strategy</label>
+              <select id="strategy">
+                <option value="ma-crossover">MA Crossover</option>
+                <option value="rsi">RSI Strategy</option>
+                <option value="macd">MACD Strategy</option>
+                <option value="bollinger">Bollinger Bands</option>
+              </select>
+            </div>
+            
+            <div class="strategy-description">
+              Moving Average Crossover generates buy signals when a fast MA crosses above a slow MA, and sell signals when it crosses below.
+            </div>
+            
+            <div class="strategy-params">
+              <h4>Strategy Parameters</h4>
+              
+              <div class="param-input">
+                <label>Fast Period: <span id="fast-period-value">9</span> <span class="tooltip-icon" title="The number of candles used to calculate the fast moving average. A shorter period is more responsive to recent price changes.">?</span></label>
+                <input type="range" min="5" max="20" value="9" id="fast-period-slider">
+              </div>
+              
+              <div class="param-input">
+                <label>Slow Period: <span id="slow-period-value">21</span> <span class="tooltip-icon" title="The number of candles used to calculate the slow moving average. A longer period shows the overall trend direction.">?</span></label>
+                <input type="range" min="15" max="50" value="21" id="slow-period-slider">
+              </div>
+            </div>
+          </div>
+          
+          <div class="combined-strategies" style="display: none;">
+            <div class="add-strategy">
+              <select id="add-strategy-select">
+                <option value="ma-crossover">MA Crossover</option>
+                <option value="rsi">RSI Strategy</option>
+                <option value="macd">MACD Strategy</option>
+                <option value="bollinger">Bollinger Bands</option>
+              </select>
+              <button>Add Strategy</button>
+            </div>
+            
+            <div class="strategy-list">
+              <div class="strategy-item">
+                <div class="strategy-header">
+                  <h4>RSI Strategy</h4>
+                  <button class="remove-strategy">Remove</button>
+                </div>
+                
+                <div class="weight-slider">
+                  <label>Weight: <span>70%</span></label>
+                  <input type="range" min="10" max="100" value="70">
+                </div>
+                
+                <div class="param-input">
+                  <label>RSI Period: <span id="rsi-period-value">14</span> <span class="tooltip-icon" title="The lookback period used to calculate the RSI indicator. Standard values are 14, but can be adjusted for more or less sensitivity.">?</span></label>
+                  <input type="range" min="7" max="21" value="14" id="rsi-period-slider">
+                </div>
+                
+                <div class="param-input">
+                  <label>Overbought Threshold: <span id="overbought-value">70</span> <span class="tooltip-icon" title="RSI value above which the market is considered overbought. Traditional value is 70, higher values mean fewer but potentially stronger sell signals.">?</span></label>
+                  <input type="range" min="60" max="80" value="70" id="overbought-slider">
+                </div>
+                
+                <div class="param-input">
+                  <label>Oversold Threshold: <span id="oversold-value">30</span> <span class="tooltip-icon" title="RSI value below which the market is considered oversold. Traditional value is 30, lower values mean fewer but potentially stronger buy signals.">?</span></label>
+                  <input type="range" min="20" max="40" value="30" id="oversold-slider">
+                </div>
+              </div>
+              
+              <div class="strategy-item">
+                <div class="strategy-header">
+                  <h4>Bollinger Bands</h4>
+                  <button class="remove-strategy">Remove</button>
+                </div>
+                
+                <div class="weight-slider">
+                  <label>Weight: <span>30%</span></label>
+                  <input type="range" min="10" max="100" value="30">
+                </div>
+                
+                <div class="param-input">
+                  <label>Period: <span id="bb-period-value">20</span> <span class="tooltip-icon" title="The number of candles used to calculate the moving average for Bollinger Bands. Standard value is 20.">?</span></label>
+                  <input type="range" min="10" max="30" value="20" id="bb-period-slider">
+                </div>
+                
+                <div class="param-input">
+                  <label>Standard Deviation: <span id="bb-std-value">2</span> <span class="tooltip-icon" title="Multiplier for standard deviation that determines the width of the bands. Higher values create wider bands with fewer signals.">?</span></label>
+                  <input type="range" min="1" max="3" step="0.5" value="2" id="bb-std-slider">
+                </div>
+                
+                <div class="param-input checkbox">
+                  <input type="checkbox" id="squeeze-mode" checked>
+                  <label for="squeeze-mode">Squeeze Mode</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="run-backtest">
+            <button>Run Backtest</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="results-section">
+        <div class="results-display">
+          <h2>Backtest Results</h2>
+          
+          <div class="results-summary">
+            <div class="result-card primary">
+              <h3>Win Rate</h3>
+              <div class="result-value">68.5%</div>
+            </div>
+            
+            <div class="result-card">
+              <h3>Total Trades</h3>
+              <div class="result-value">42</div>
+            </div>
+            
+            <div class="result-card">
+              <h3>Final Balance</h3>
+              <div class="result-value">$1,457</div>
+            </div>
+            
+            <div class="result-card">
+              <h3>Return</h3>
+              <div class="result-value profit">+45.7%</div>
+            </div>
+          </div>
+          
+          <div class="trade-history">
+            <h3>Trade History</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Price</th>
+                  <th>Amount</th>
+                  <th>P&L</th>
+                  <th>Duration</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="profitable">
+                  <td>2025-03-05 14:00</td>
+                  <td>BUY → SELL</td>
+                  <td>$52,450 → $54,320</td>
+                  <td>0.019 BTC</td>
+                  <td class="profit">+$35.60</td>
+                  <td>16h</td>
+                  <td>RSI (70%): Oversold at 28.5, MACD (30%): Signal line crossover</td>
+                </tr>
+                <tr class="profitable">
+                  <td>2025-03-10 10:00</td>
+                  <td>BUY → SELL</td>
+                  <td>$51,280 → $53,760</td>
+                  <td>0.020 BTC</td>
+                  <td class="profit">+$49.80</td>
+                  <td>1d 8h</td>
+                  <td>RSI (70%): Oversold at 27.2, BB (30%): Price at lower band</td>
+                </tr>
+                <tr class="loss">
+                  <td>2025-03-15 22:00</td>
+                  <td>BUY → SELL</td>
+                  <td>$55,120 → $53,920</td>
+                  <td>0.018 BTC</td>
+                  <td class="loss">-$21.60</td>
+                  <td>6h</td>
+                  <td>RSI (70%): Oversold at 29.8, BB (30%): Squeeze detected</td>
+                </tr>
+                <tr class="profitable">
+                  <td>2025-03-21 08:00</td>
+                  <td>BUY → SELL</td>
+                  <td>$54,050 → $56,780</td>
+                  <td>0.019 BTC</td>
+                  <td class="profit">+$51.80</td>
+                  <td>2d 4h</td>
+                  <td>RSI (70%): Oversold at 26.3, BB (30%): Price at lower band</td>
+                </tr>
+                <tr class="profitable">
+                  <td>2025-03-28 16:00</td>
+                  <td>BUY → SELL</td>
+                  <td>$56,320 → $58,150</td>
+                  <td>0.018 BTC</td>
+                  <td class="profit">+$32.90</td>
+                  <td>12h</td>
+                  <td>RSI (70%): Oversold at 28.1, BB (30%): Squeeze breakout</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <footer class="app-footer">
+      <p>August Strategy Tester &copy; 2025</p>
+    </footer>
+  </div>
+
+  <script>
+    // Enhanced interactivity for demo
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add CSS for tooltips
+      const style = document.createElement('style');
+      style.textContent = `
+        .tooltip-icon {
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          background-color: #3498db;
+          color: white;
+          border-radius: 50%;
+          text-align: center;
+          line-height: 16px;
+          font-size: 12px;
+          cursor: help;
+          margin-left: 5px;
+          position: relative;
+        }
+        
+        .tooltip-icon:hover::after {
+          content: attr(title);
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 8px 12px;
+          border-radius: 4px;
+          width: 200px;
+          z-index: 100;
+          font-size: 12px;
+          line-height: 1.4;
+          text-align: left;
+        }
+      `;
+      document.head.appendChild(style);
+      
+      // Strategy mode switching
+      const singleStrategyDiv = document.querySelector('.single-strategy');
+      const combinedStrategiesDiv = document.querySelector('.combined-strategies');
+      const strategyModeRadios = document.querySelectorAll('input[name="strategy-mode"]');
+      
+      strategyModeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === 'single') {
+            singleStrategyDiv.style.display = 'block';
+            combinedStrategiesDiv.style.display = 'none';
+          } else {
+            singleStrategyDiv.style.display = 'none';
+            combinedStrategiesDiv.style.display = 'block';
+          }
+        });
+      });
+      
+      // Update parameter values when sliders change
+      // MA Crossover parameters
+      const fastPeriodSlider = document.getElementById('fast-period-slider');
+      const fastPeriodValue = document.getElementById('fast-period-value');
+      fastPeriodSlider.addEventListener('input', function() {
+        fastPeriodValue.textContent = this.value;
+      });
+      
+      const slowPeriodSlider = document.getElementById('slow-period-slider');
+      const slowPeriodValue = document.getElementById('slow-period-value');
+      slowPeriodSlider.addEventListener('input', function() {
+        slowPeriodValue.textContent = this.value;
+      });
+      
+      // RSI parameters
+      const rsiPeriodSlider = document.getElementById('rsi-period-slider');
+      const rsiPeriodValue = document.getElementById('rsi-period-value');
+      rsiPeriodSlider.addEventListener('input', function() {
+        rsiPeriodValue.textContent = this.value;
+      });
+      
+      const overboughtSlider = document.getElementById('overbought-slider');
+      const overboughtValue = document.getElementById('overbought-value');
+      overboughtSlider.addEventListener('input', function() {
+        overboughtValue.textContent = this.value;
+      });
+      
+      const oversoldSlider = document.getElementById('oversold-slider');
+      const oversoldValue = document.getElementById('oversold-value');
+      oversoldSlider.addEventListener('input', function() {
+        oversoldValue.textContent = this.value;
+      });
+      
+      // Bollinger Bands parameters
+      const bbPeriodSlider = document.getElementById('bb-period-slider');
+      const bbPeriodValue = document.getElementById('bb-period-value');
+      bbPeriodSlider.addEventListener('input', function() {
+        bbPeriodValue.textContent = this.value;
+      });
+      
+      const bbStdSlider = document.getElementById('bb-std-slider');
+      const bbStdValue = document.getElementById('bb-std-value');
+      bbStdSlider.addEventListener('input', function() {
+        bbStdValue.textContent = this.value;
+      });
+      
+      // Date range limitations based on timeframe
+      const intervalSelect = document.getElementById('interval');
+      const fromDateInput = document.getElementById('from-date');
+      const toDateInput = document.getElementById('to-date');
+      
+      // Calculate max date range based on selected interval
+      function getMaxDateRange(interval) {
+        // Binance API limitations by timeframe
+        switch (interval) {
+          case '1m': return 7 * 24 * 60 * 60 * 1000; // 7 days for 1-minute data
+          case '5m': return 30 * 24 * 60 * 60 * 1000; // 30 days for 5-minute data
+          case '15m': return 90 * 24 * 60 * 60 * 1000; // 90 days for 15-minute data
+          case '1h': return 365 * 24 * 60 * 60 * 1000; // 1 year for hourly data
+          case '4h': return 2 * 365 * 24 * 60 * 60 * 1000; // 2 years for 4-hour data
+          case '1d': return 3 * 365 * 24 * 60 * 60 * 1000; // 3 years for daily data
+          default: return 30 * 24 * 60 * 60 * 1000; // Default to 30 days
+        }
+      }
+      
+      // Update date ranges based on selected timeframe
+      function updateDateRanges() {
+        const interval = intervalSelect.value;
+        const maxRange = getMaxDateRange(interval);
+        const now = new Date();
+        const minAllowedDate = new Date(now.getTime() - maxRange);
+        
+        // Format dates for input fields
+        const minDateStr = minAllowedDate.toISOString().split('T')[0];
+        const nowStr = now.toISOString().split('T')[0];
+        
+        // Update min/max attributes
+        fromDateInput.min = minDateStr;
+        fromDateInput.max = nowStr;
+        toDateInput.min = minDateStr;
+        toDateInput.max = nowStr;
+        
+        // If current fromDate is before the minimum allowed date, update it
+        const currentFromDate = new Date(fromDateInput.value);
+        if (currentFromDate < minAllowedDate) {
+          fromDateInput.value = minDateStr;
+        }
+        
+        // Add tooltip explaining the limitation
+        const tooltipText = document.querySelector('.tooltip-text');
+        if (tooltipText) {
+          tooltipText.textContent = `Date range limited to ${maxRange/(24*60*60*1000)} days for ${interval} timeframe due to Binance API constraints.`;
+        }
+      }
+      
+      // Listen for interval changes
+      intervalSelect.addEventListener('change', updateDateRanges);
+      
+      // Initialize date ranges on load
+      updateDateRanges();
+      
+      // Run backtest button
+      const runBacktestButton = document.querySelector('.run-backtest button');
+      const resultsDisplay = document.querySelector('.results-display');
+      
+      runBacktestButton.addEventListener('click', function() {
+        // Show loading state
+        resultsDisplay.innerHTML = `
+          <h2>Running Backtest...</h2>
+          <div class="loading-spinner"></div>
+          <p>Fetching historical data and running calculations...</p>
+        `;
+        resultsDisplay.classList.add('loading');
+        
+        // Simulate API call and processing delay
+        setTimeout(function() {
+          // Remove loading state
+          resultsDisplay.classList.remove('loading');
+          
+          // Generate some random results based on the parameters
+          const winRate = Math.floor(55 + Math.random() * 25);
+          const totalTrades = Math.floor(30 + Math.random() * 30);
+          const startBalance = parseFloat(document.getElementById('balance').value);
+          const finalBalance = Math.floor(startBalance * (1 + (winRate/100)));
+          const returnPct = ((finalBalance - startBalance) / startBalance * 100).toFixed(1);
+          
+          // Update results with "real" data
+          resultsDisplay.innerHTML = `
+            <h2>Backtest Results</h2>
+            
+            <div class="results-summary">
+              <div class="result-card primary">
+                <h3>Win Rate</h3>
+                <div class="result-value">${winRate}%</div>
+              </div>
+              
+              <div class="result-card">
+                <h3>Total Trades</h3>
+                <div class="result-value">${totalTrades}</div>
+              </div>
+              
+              <div class="result-card">
+                <h3>Final Balance</h3>
+                <div class="result-value">$${finalBalance}</div>
+              </div>
+              
+              <div class="result-card">
+                <h3>Return</h3>
+                <div class="result-value ${returnPct > 0 ? 'profit' : 'loss'}">${ returnPct > 0 ? '+' : ''}${returnPct}%</div>
+              </div>
+            </div>
+            
+            <div class="trade-history">
+              <h3>Trade History</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th>P&L</th>
+                    <th>Duration</th>
+                    <th>Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${generateTrades(totalTrades, winRate/100)}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }, 2000);
+      });
+      
+      // Helper function to generate trade rows
+      function generateTrades(count, winRate) {
+        let html = '';
+        const coin = document.getElementById('coin').value.substring(0, 3);
+        const startDate = new Date(document.getElementById('from-date').value);
+        const endDate = new Date(document.getElementById('to-date').value);
+        const timeSpan = endDate - startDate;
+        
+        let lastPrice = 50000; // Starting price for BTC
+        if (coin === 'ETH') lastPrice = 3000;
+        if (coin === 'SOL') lastPrice = 100;
+        if (coin === 'XRP') lastPrice = 0.5;
+        
+        for (let i = 0; i < count; i++) {
+          // Random date between start and end
+          const tradeDate = new Date(startDate.getTime() + Math.random() * timeSpan);
+          const dateStr = tradeDate.toISOString().substring(0, 10) + ' ' + 
+                         tradeDate.getHours().toString().padStart(2, '0') + ':' + 
+                         tradeDate.getMinutes().toString().padStart(2, '0');
+          
+          // Random hold duration
+          const holdHours = Math.floor(4 + Math.random() * 48);
+          const holdStr = holdHours >= 24 ? 
+                        Math.floor(holdHours/24) + 'd ' + (holdHours % 24) + 'h' : 
+                        holdHours + 'h';
+          
+          // Price change
+          const isWin = Math.random() < winRate;
+          const priceChange = lastPrice * (isWin ? 
+                            (0.01 + Math.random() * 0.05) : 
+                            -(0.01 + Math.random() * 0.03));
+          const entryPrice = lastPrice;
+          const exitPrice = lastPrice + priceChange;
+          lastPrice = exitPrice;
+          
+          // Trade amount
+          const amount = (1000 / entryPrice * 0.1).toFixed(coin === 'XRP' ? 1 : 3);
+          
+          // P&L
+          const pnl = (exitPrice - entryPrice) * amount;
+          
+          // Reason
+          let reason;
+          if (document.querySelector('input[name="strategy-mode"]:checked').value === 'single') {
+            const strategy = document.getElementById('strategy').value;
+            if (strategy === 'ma-crossover') {
+              reason = isWin ? 
+                     `Fast MA (${fastPeriodSlider.value}) crossed above Slow MA (${slowPeriodSlider.value})` : 
+                     `False signal: Fast MA temporary crossover`;
+            } else if (strategy === 'rsi') {
+              reason = isWin ? 
+                     `RSI ${entryPrice > exitPrice ? 'overbought at ' + (70 + Math.floor(Math.random() * 15)) : 'oversold at ' + (30 - Math.floor(Math.random() * 15))}` : 
+                     `RSI divergence failed to predict reversal`;
+            } else if (strategy === 'macd') {
+              reason = isWin ? 
+                     `MACD line crossed ${entryPrice > exitPrice ? 'below' : 'above'} signal line` : 
+                     `MACD failed to confirm trend change`;
+            } else {
+              reason = isWin ? 
+                     `Price ${entryPrice > exitPrice ? 'touched upper' : 'touched lower'} band with ${bbStdSlider.value}σ` : 
+                     `Failed band ${entryPrice > exitPrice ? 'resistance' : 'support'} test`;
+            }
+          } else {
+            reason = isWin ? 
+                   `RSI (70%): ${entryPrice > exitPrice ? 'Overbought at 72.3' : 'Oversold at 27.8'}, BB (30%): ${entryPrice > exitPrice ? 'Price at upper band' : 'Price at lower band'}` : 
+                   `Mixed signals: RSI (70%) neutral, BB (30%) showed false ${entryPrice > exitPrice ? 'resistance' : 'support'}`;
+          }
+          
+          html += `
+            <tr class="${isWin ? 'profitable' : 'loss'}">
+              <td>${dateStr}</td>
+              <td>${entryPrice > exitPrice ? 'SELL → BUY' : 'BUY → SELL'}</td>
+              <td>$${entryPrice.toFixed(2)} → $${exitPrice.toFixed(2)}</td>
+              <td>${amount} ${coin}</td>
+              <td class="${isWin ? 'profit' : 'loss'}">${isWin ? '+' : ''}$${Math.abs(pnl).toFixed(2)}</td>
+              <td>${holdStr}</td>
+              <td>${reason}</td>
+            </tr>
+          `;
+        }
+        
+        return html;
+      }
+    });
+  </script>
+</body>
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid var(--primary-color);
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.results-display.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+</style>
+</html>

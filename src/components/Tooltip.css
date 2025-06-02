@@ -1,0 +1,72 @@
+/* Enhanced tooltip implementation */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+  z-index: 9999;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #2196f3;
+  color: white;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: bold;
+  cursor: help;
+  margin-top: -2px;
+}
+
+/* Hidden by default */
+.tooltip-text {
+  visibility: hidden;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background-color: var(--card-background);
+  color: var(--text-color);
+  text-align: left;
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 10000;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+/* Arrow pointer */
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--card-background) transparent transparent transparent;
+}
+
+/* Show on hover - reliable approach */
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Also show when active class is applied */
+.tooltip-text.active {
+  visibility: visible;
+}
+
+
